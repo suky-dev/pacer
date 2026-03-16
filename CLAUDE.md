@@ -1,4 +1,4 @@
-# Project: Berlin Job Tracker
+# Project: tech job aggregator
 
 ## Goal
 Aggregate tech job listings from multiple sources with keyword filtering.
