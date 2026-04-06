@@ -47,3 +47,8 @@ out/
 
 ### Worktrees ###
 .worktrees/
+
+### AI sessions ###
+.superpowers/
+.playwright-mcp/
+
