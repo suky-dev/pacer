@@ -24,7 +24,7 @@
 - `backend/src/main/kotlin/dev/pacer/domain/sourcecv/dto/CreateVersionRequest.kt`
 - `backend/src/main/kotlin/dev/pacer/domain/sourcecv/SourceCvService.kt`
 - `backend/src/main/kotlin/dev/pacer/domain/sourcecv/SourceCvController.kt`
-- `backend/src/test/kotlin/dev/pacer/domain/sourcecv/SourceCvRepositoryTest.kt`
+- `backend/src/test/kotlin/dev/pacer/domain/sourcecv/SourceCvServiceTest.kt`
 
 **Frontend — create:**
 - `frontend/lib/source-cv.ts` — TypeScript types + API functions
@@ -158,93 +158,7 @@ git commit -m "feat: add SourceCv entity and repository"
 
 ---
 
-## Task 3: Repository Test
-
-**Files:**
-- Create: `backend/src/test/kotlin/dev/pacer/domain/sourcecv/SourceCvRepositoryTest.kt`
-
-- [ ] **Step 1: Write the failing tests**
-
-```kotlin
-// SourceCvRepositoryTest.kt
-package dev.pacer.domain.sourcecv
-
-import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
-import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase
-import org.springframework.test.context.ActiveProfiles
-import java.util.UUID
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("local")
-class SourceCvRepositoryTest {
-
-    @Autowired
-    lateinit var repo: SourceCvRepository
-
-    private val userId = UUID.randomUUID()
-
-    @Test
-    fun `findTopByUserIdOrderByVersionDesc returns null when no cv exists`() {
-        val result = repo.findTopByUserIdOrderByVersionDesc(userId)
-        assertNull(result)
-    }
-
-    @Test
-    fun `findTopByUserIdOrderByVersionDesc returns latest version`() {
-        repo.save(SourceCv(userId = userId, version = 1, data = """{"sections":[]}"""))
-        repo.save(SourceCv(userId = userId, version = 2, data = """{"sections":["v2"]}"""))
-
-        val result = repo.findTopByUserIdOrderByVersionDesc(userId)
-
-        assertNotNull(result)
-        assertEquals(2, result.version)
-    }
-
-    @Test
-    fun `findAllByUserIdOrderByVersionDesc returns versions in descending order`() {
-        repo.save(SourceCv(userId = userId, version = 1))
-        repo.save(SourceCv(userId = userId, version = 2))
-        repo.save(SourceCv(userId = userId, version = 3))
-
-        val results = repo.findAllByUserIdOrderByVersionDesc(userId)
-
-        assertEquals(listOf(3, 2, 1), results.map { it.version })
-    }
-}
-```
-
-- [ ] **Step 2: Run the tests to verify they fail**
-
-```bash
-cd backend && ./gradlew test --tests "dev.pacer.domain.sourcecv.SourceCvRepositoryTest"
-```
-
-Expected: FAILED — entity/repo not wired yet (if running before Task 2) or PASS if after Task 2. Either way confirms test runs.
-
-- [ ] **Step 3: Run after Task 2 is complete to verify they pass**
-
-```bash
-cd backend && ./gradlew test --tests "dev.pacer.domain.sourcecv.SourceCvRepositoryTest"
-```
-
-Expected: 3 tests PASSED
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add backend/src/test/kotlin/dev/pacer/domain/sourcecv/SourceCvRepositoryTest.kt
-git commit -m "test: add SourceCvRepository tests"
-```
-
----
-
-## Task 4: DTOs
+## Task 3: DTOs
 
 **Files:**
 - Create: `backend/src/main/kotlin/dev/pacer/domain/sourcecv/dto/SourceCvResponse.kt`
@@ -359,15 +273,158 @@ git commit -m "feat: add SourceCv DTOs"
 
 ---
 
-## Task 5: Service
+## Task 5: Service (TDD)
 
 **Files:**
 - Create: `backend/src/main/kotlin/dev/pacer/domain/sourcecv/SourceCvService.kt`
+- Create: `backend/src/test/kotlin/dev/pacer/domain/sourcecv/SourceCvServiceTest.kt`
 
-- [ ] **Step 1: Write the service**
+> Unit tests are written for methods with complex branching only (`updateCurrent`, `createVersion`, `restore`). Simple repository-delegation methods (`getLatest`, `listVersions`) are not tested here.
+>
+> TDD 절차: stub 작성 → 테스트 작성 → RED 확인 → 구현 → GREEN 확인.
+> 클래스/import 에러로 인한 컴파일 실패는 유효한 RED가 아님.
+
+- [ ] **Step 1: Write the stub service (compiles, but logic not implemented)**
 
 ```kotlin
 // SourceCvService.kt
+package dev.pacer.domain.sourcecv
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import dev.pacer.domain.sourcecv.dto.CreateVersionRequest
+import dev.pacer.domain.sourcecv.dto.SourceCvResponse
+import dev.pacer.domain.sourcecv.dto.SourceCvVersionSummary
+import dev.pacer.domain.sourcecv.dto.UpdateSourceCvRequest
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
+
+@Service
+class SourceCvService(
+    private val sourceCvRepository: SourceCvRepository,
+    private val objectMapper: ObjectMapper,
+) {
+    fun getLatest(userId: UUID): SourceCvResponse = TODO()
+
+    @Transactional
+    fun updateCurrent(userId: UUID, request: UpdateSourceCvRequest): SourceCvResponse = TODO()
+
+    fun listVersions(userId: UUID): List<SourceCvVersionSummary> = TODO()
+
+    @Transactional
+    fun createVersion(userId: UUID, request: CreateVersionRequest): SourceCvVersionSummary = TODO()
+
+    @Transactional
+    fun restore(userId: UUID, versionId: UUID): SourceCvVersionSummary = TODO()
+}
+```
+
+- [ ] **Step 2: Write the unit tests**
+
+```kotlin
+// SourceCvServiceTest.kt
+package dev.pacer.domain.sourcecv
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import dev.pacer.domain.sourcecv.dto.CreateVersionRequest
+import dev.pacer.domain.sourcecv.dto.UpdateSourceCvRequest
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers.any
+import org.mockito.BDDMockito.given
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
+import java.util.Optional
+import java.util.UUID
+import kotlin.test.assertEquals
+
+@ExtendWith(MockitoExtension::class)
+class SourceCvServiceTest {
+
+    @Mock
+    lateinit var sourceCvRepository: SourceCvRepository
+
+    private val objectMapper = ObjectMapper().apply { findAndRegisterModules() }
+    private lateinit var service: SourceCvService
+
+    @BeforeEach
+    fun setUp() {
+        service = SourceCvService(sourceCvRepository, objectMapper)
+    }
+
+    // updateCurrent: creates a new row when no CV exists
+    @Test
+    fun `updateCurrent creates new row when no existing CV`() {
+        val userId = UUID.randomUUID()
+        val data = objectMapper.readTree("""{"sections":[]}""")
+        val saved = SourceCv(userId = userId, version = 1)
+
+        given(sourceCvRepository.findTopByUserIdOrderByVersionDesc(userId)).willReturn(null)
+        given(sourceCvRepository.save(any(SourceCv::class.java))).willReturn(saved)
+
+        val result = service.updateCurrent(userId, UpdateSourceCvRequest(data))
+
+        assertEquals(1, result.version)
+    }
+
+    // updateCurrent: updates the existing row (does NOT increment version)
+    @Test
+    fun `updateCurrent updates existing row without incrementing version`() {
+        val userId = UUID.randomUUID()
+        val data = objectMapper.readTree("""{"sections":[]}""")
+        val existing = SourceCv(userId = userId, version = 3, data = """{"sections":[]}""")
+
+        given(sourceCvRepository.findTopByUserIdOrderByVersionDesc(userId)).willReturn(existing)
+        given(sourceCvRepository.save(any(SourceCv::class.java))).willReturn(existing)
+
+        val result = service.updateCurrent(userId, UpdateSourceCvRequest(data))
+
+        assertEquals(3, result.version)
+    }
+
+    // createVersion: throws when no CV exists for the user
+    @Test
+    fun `createVersion throws NoSuchElementException when no CV exists`() {
+        val userId = UUID.randomUUID()
+
+        given(sourceCvRepository.findTopByUserIdOrderByVersionDesc(userId)).willReturn(null)
+
+        assertThrows<NoSuchElementException> {
+            service.createVersion(userId, CreateVersionRequest(label = null))
+        }
+    }
+
+    // restore: throws when the target version belongs to a different user
+    @Test
+    fun `restore throws IllegalArgumentException when version belongs to different user`() {
+        val userId = UUID.randomUUID()
+        val otherUserId = UUID.randomUUID()
+        val versionId = UUID.randomUUID()
+        val target = SourceCv(userId = otherUserId, version = 1)
+
+        given(sourceCvRepository.findById(versionId)).willReturn(Optional.of(target))
+
+        assertThrows<IllegalArgumentException> {
+            service.restore(userId, versionId)
+        }
+    }
+}
+```
+
+- [ ] **Step 3: Run the tests — verify RED**
+
+```bash
+cd backend && ./gradlew test --tests "dev.pacer.domain.sourcecv.SourceCvServiceTest"
+```
+
+Expected: 4 tests FAIL with `NotImplementedError` (from `TODO()`). This is the valid RED state.
+
+- [ ] **Step 4: Implement the real service logic**
+
+```kotlin
+// SourceCvService.kt — replace stub with full implementation
 package dev.pacer.domain.sourcecv
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -444,19 +501,20 @@ class SourceCvService(
 }
 ```
 
-- [ ] **Step 2: Compile**
+- [ ] **Step 5: Run the tests — verify GREEN**
 
 ```bash
-cd backend && ./gradlew compileKotlin
+cd backend && ./gradlew test --tests "dev.pacer.domain.sourcecv.SourceCvServiceTest"
 ```
 
-Expected: BUILD SUCCESSFUL
+Expected: 4 tests PASSED
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add backend/src/main/kotlin/dev/pacer/domain/sourcecv/SourceCvService.kt
-git commit -m "feat: add SourceCvService"
+git add backend/src/main/kotlin/dev/pacer/domain/sourcecv/SourceCvService.kt \
+        backend/src/test/kotlin/dev/pacer/domain/sourcecv/SourceCvServiceTest.kt
+git commit -m "feat: add SourceCvService with unit tests (TDD)"
 ```
 
 ---
