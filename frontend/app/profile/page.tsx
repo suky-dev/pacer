@@ -8,6 +8,17 @@ import { Input } from '@/components/ui/input'
 import { apiFetch } from '@/lib/api'
 import { isLoggedIn } from '@/lib/auth'
 
+function toEmbedUrl(url: string): string {
+  try {
+    const parsed = new URL(url)
+    parsed.search = ''
+    parsed.hash = ''
+    return `${parsed.toString()}?embedded=true`
+  } catch {
+    return `${url}?embedded=true`
+  }
+}
+
 interface User {
   id: string
   email: string
@@ -85,7 +96,7 @@ export default function ProfilePage() {
               CV Preview
             </div>
             <iframe
-              src={`${user.cvTemplateUrl}?embedded=true`}
+              src={toEmbedUrl(user.cvTemplateUrl)}
               className="h-[80vh] w-full"
               title="CV Template"
             />
