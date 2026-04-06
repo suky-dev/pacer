@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { Header } from '@/components/header'
 import { Button } from '@/components/ui/button'
@@ -5,6 +7,10 @@ import { Input } from '@/components/ui/input'
 import { FieldGroup, Field, FieldLabel } from '@/components/ui/field'
 
 export default function LoginPage() {
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'}/oauth2/authorization/google`
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -56,7 +62,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
