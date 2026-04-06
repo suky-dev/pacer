@@ -42,28 +42,27 @@ type SourceCv = {
   sections: Section[]
 }
 
-type Section = {
-  id: string        // client-generated UUID
-  title: string     // "EXPERIENCE", "TECHNICAL SKILLS", "EDUCATION" 등 자유 입력
-  entries: Entry[]
-}
+// Section과 Field를 구분하는 discriminated union
+type Node = Section | Field
 
-type Entry = {
+type Section = {
+  kind: "section"
   id: string
-  label?: string    // 선택적 표시 이름 e.g. "Channel Corporation"
-  fields: Field[]
+  title: Variation[]    // 제목 자체도 variation 가능
+  children: Node[]      // Section 또는 Field 혼합 — 재귀적 중첩 가능
 }
 
 type Field = {
+  kind: "field"
   id: string
-  type: string      // freeform key: "title", "period", "bullet", "company" 등
+  type: string          // freeform: "bullet", "period", "location" 등 유저 정의
   value: Variation[]
 }
 
 type Variation = {
-  id: string
   renderType: RenderType
   value: string
+  // id 없음 — 배열 index로 충분
 }
 
 type RenderType =
@@ -76,10 +75,23 @@ type RenderType =
 ```
 
 **설계 원칙:**
+- Section은 재귀적으로 중첩 가능 — header1 > header2 > header3 depth 표현
+- Section의 `title`도 Variation 배열 — 직책명 등 여러 표현 가능
 - `Field.type`은 완전히 freeform — 유저가 직접 정의
 - `Variation.renderType`은 제한된 enum — 렌더링 방식 결정
-- `Variation.value`는 항상 배열로 일관 처리 (period처럼 하나만 쓰는 경우도 동일 구조)
 - Variation 간 renderType이 달라도 됨 (e.g. skills: text 버전 + table 버전)
+- `kind` discriminator로 Section/Field 구분
+
+**예시:**
+```
+Section (title: [{renderType: "header1", value: "EXPERIENCE"}])
+  Section (title: [{renderType: "header2", value: "Backend SWE"},
+                   {renderType: "header2", value: "Fullstack SWE"}])
+    Field (type: "period",   value: [{renderType: "period",   value: "Jun 2024–Sep 2025"}])
+    Field (type: "location", value: [{renderType: "location", value: "Seoul"}])
+    Field (type: "bullet",   value: [{renderType: "list", value: "Extended orchestration…"},
+                                     {renderType: "list", value: "Extended… bulk action"}])
+```
 
 ---
 
@@ -135,13 +147,14 @@ domain/sourcecv/
 SourceCvPage
 ├── SourceCvHeader              — 버전 표시, "버전 저장" 버튼, 마지막 저장 시각
 └── SourceCvEditor              — 인라인 트리 (스크롤형 단일 페이지)
-    └── SectionBlock[]
-        ├── SectionHeader       — 섹션 제목 편집, 섹션 추가/삭제/순서변경
-        └── EntryBlock[]
-            ├── EntryHeader     — label 편집, 엔트리 추가/삭제
-            └── FieldRow[]      — type(freeform) + Variation[]
-                └── VariationChip[]   — 클릭 → 인라인 textarea 오픈
-                                       renderType 선택, 값 편집, 삭제
+    └── NodeList[]              — 재귀 렌더링
+        ├── SectionBlock        — kind: "section"
+        │   ├── SectionTitle    — title Variation[] 편집, 중첩 섹션 추가/삭제/순서변경
+        │   └── NodeList[]      — children 재귀 렌더링 (Section 또는 Field)
+        └── FieldRow            — kind: "field"
+            ├── FieldType       — type(freeform) 편집
+            └── VariationChip[] — 클릭 → 인라인 textarea 오픈
+                                  renderType 선택, 값 편집, 삭제
 ```
 
 ### 상태 관리
