@@ -1,7 +1,7 @@
 package dev.pacer.domain.sourcecv.dto
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
 import dev.pacer.domain.sourcecv.SourceCv
 import java.time.Instant
 import java.util.UUID

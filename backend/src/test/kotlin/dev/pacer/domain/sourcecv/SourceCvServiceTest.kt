@@ -1,6 +1,6 @@
 package dev.pacer.domain.sourcecv
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 import dev.pacer.domain.sourcecv.dto.CreateVersionRequest
 import dev.pacer.domain.sourcecv.dto.UpdateSourceCvRequest
 import org.junit.jupiter.api.BeforeEach
@@ -21,7 +21,7 @@ class SourceCvServiceTest {
     @Mock
     lateinit var sourceCvRepository: SourceCvRepository
 
-    private val objectMapper = ObjectMapper().apply { findAndRegisterModules() }
+    private val objectMapper = JsonMapper()
     private lateinit var service: SourceCvService
 
     @BeforeEach

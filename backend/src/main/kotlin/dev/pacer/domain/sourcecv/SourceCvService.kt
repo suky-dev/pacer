@@ -1,6 +1,6 @@
 package dev.pacer.domain.sourcecv
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import dev.pacer.domain.sourcecv.dto.CreateVersionRequest
 import dev.pacer.domain.sourcecv.dto.SourceCvResponse
 import dev.pacer.domain.sourcecv.dto.SourceCvVersionSummary
