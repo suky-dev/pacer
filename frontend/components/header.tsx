@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
-import { Moon, Sun, Bookmark, FileText, Briefcase, Rocket } from 'lucide-react'
+import { Moon, Sun, Bookmark, FileText, Briefcase, Rocket, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/hooks/use-auth'
 
 const navItems = [
   { href: '/jobs', label: 'Jobs', icon: Briefcase },
@@ -20,6 +21,7 @@ interface HeaderProps {
 export function Header({ minimal = false }: HeaderProps) {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
+  const { user, logout } = useAuth()
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-sm">
@@ -70,9 +72,25 @@ export function Header({ minimal = false }: HeaderProps) {
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
-          <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
-            <Link href="/login">Sign in</Link>
-          </Button>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/profile"
+                className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary/50 hover:text-foreground"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">{user.name ?? user.email}</span>
+              </Link>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={logout}>
+                <LogOut className="h-4 w-4" />
+                <span className="sr-only">Sign out</span>
+              </Button>
+            </div>
+          ) : (
+            <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
+              <Link href="/login">Sign in</Link>
+            </Button>
+          )}
         </div>
       </div>
 

@@ -6,7 +6,7 @@ import { Header } from '@/components/header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { apiFetch } from '@/lib/api'
-import { isLoggedIn } from '@/lib/auth'
+import { useAuth } from '@/hooks/use-auth'
 
 function toEmbedUrl(url: string): string {
   try {
@@ -19,31 +19,20 @@ function toEmbedUrl(url: string): string {
   }
 }
 
-interface User {
-  id: string
-  email: string
-  name: string | null
-  cvTemplateUrl: string | null
-}
-
 export default function ProfilePage() {
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading } = useAuth()
   const [urlInput, setUrlInput] = useState('')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (!isLoggedIn()) {
+    if (!loading && !user) {
       router.replace('/login')
-      return
     }
-    apiFetch('/api/users/me')
-      .then((res) => res.json())
-      .then((data: User) => {
-        setUser(data)
-        setUrlInput(data.cvTemplateUrl ?? '')
-      })
-  }, [router])
+    if (user) {
+      setUrlInput(user.cvTemplateUrl ?? '')
+    }
+  }, [user, loading, router])
 
   const handleSave = async () => {
     setSaving(true)
@@ -52,13 +41,13 @@ export default function ProfilePage() {
       body: JSON.stringify({ cvTemplateUrl: urlInput }),
     })
     if (res.ok) {
-      const data: User = await res.json()
-      setUser(data)
+      const data = await res.json()
+      setUrlInput(data.cvTemplateUrl ?? '')
     }
     setSaving(false)
   }
 
-  if (!user) {
+  if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-muted-foreground text-sm">Loading...</p>
@@ -90,13 +79,13 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        {user.cvTemplateUrl && (
+        {urlInput && (
           <section className="rounded-lg border border-border overflow-hidden">
             <div className="border-b border-border bg-card px-4 py-2 text-sm font-medium">
               CV Preview
             </div>
             <iframe
-              src={toEmbedUrl(user.cvTemplateUrl)}
+              src={toEmbedUrl(urlInput)}
               className="h-[80vh] w-full"
               title="CV Template"
             />
