@@ -22,7 +22,7 @@ class SecurityConfig(
             .cors { }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/oauth2/**", "/login/oauth2/**", "/actuator/health").permitAll()
+                    .requestMatchers("/oauth2/**", "/login/oauth2/**", "/api/health").permitAll()
                     .requestMatchers("/api/**").authenticated()
                     .anyRequest().permitAll()
             }

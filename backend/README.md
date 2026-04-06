@@ -57,7 +57,7 @@ Tests use the real local PostgreSQL (no Docker/Testcontainers). Make sure the DB
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/health` | Health check |
+| GET | `/api/health` | Health check |
 | GET | `/oauth2/authorization/google` | Initiate Google OAuth |
 | GET | `/api/users/me` | Current user (JWT required) |
 | PATCH | `/api/users/me/cv-template` | Save CV template Doc URL |
