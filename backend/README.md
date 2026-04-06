@@ -2,6 +2,14 @@
 
 Kotlin + Spring Boot 4.0.3 API server.
 
+## Environments
+
+| Environment | URL |
+|-------------|-----|
+| Local | `http://localhost:8080` |
+| Staging | `https://pacer-staging.up.railway.app` |
+| Production | TBD (Railway) |
+
 ## Requirements
 
 - Java 21
@@ -49,7 +57,7 @@ Tests use the real local PostgreSQL (no Docker/Testcontainers). Make sure the DB
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/actuator/health` | Health check |
+| GET | `/health` | Health check |
 | GET | `/oauth2/authorization/google` | Initiate Google OAuth |
 | GET | `/api/users/me` | Current user (JWT required) |
 | PATCH | `/api/users/me/cv-template` | Save CV template Doc URL |
@@ -71,5 +79,20 @@ security/
 
 1. Enable Google Docs API + Google Drive API
 2. OAuth consent screen: add scopes `openid`, `email`, `profile`, `documents`, `drive.file`
-3. Create OAuth 2.0 Client ID (Web) — redirect URI: `http://localhost:8080/login/oauth2/code/google`
+3. Create OAuth 2.0 Client ID (Web) with:
+   - **Authorized JavaScript origins:** `http://localhost:3000`
+   - **Authorized redirect URIs:** `http://localhost:8080/login/oauth2/code/google`
 4. Copy Client ID + Secret to `application-local.properties`
+
+## Production deployment checklist (Railway)
+
+- [ ] Add Railway environment variables:
+  ```
+  GOOGLE_CLIENT_ID=...
+  GOOGLE_CLIENT_SECRET=...
+  JWT_SECRET=<strong random value>
+  FRONTEND_URL=https://your-app.vercel.app
+  ```
+- [ ] Add to Google Cloud Console OAuth Client:
+  - **Authorized JavaScript origins:** `https://your-app.vercel.app`
+  - **Authorized redirect URIs:** `https://pacer-staging.up.railway.app/login/oauth2/code/google`
