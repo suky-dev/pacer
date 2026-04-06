@@ -31,10 +31,10 @@ cp src/main/resources/application-local.properties.example src/main/resources/ap
 > spring.datasource.password=
 > spring.jpa.show-sql=true
 > spring.flyway.enabled=true
-> GOOGLE_CLIENT_ID=your-google-client-id
-> GOOGLE_CLIENT_SECRET=your-google-client-secret
-> JWT_SECRET=local-dev-secret-min-32-chars-long!!
-> FRONTEND_URL=http://localhost:3000
+> spring.security.oauth2.client.registration.google.client-id=your-google-client-id
+> spring.security.oauth2.client.registration.google.client-secret=your-google-client-secret
+> app.jwt.secret=local-dev-secret-min-32-chars-long!!
+> app.frontend-url=http://localhost:3000
 > ```
 
 ## Run
@@ -88,10 +88,10 @@ security/
 
 - [ ] Add Railway environment variables:
   ```
-  GOOGLE_CLIENT_ID=...
-  GOOGLE_CLIENT_SECRET=...
-  JWT_SECRET=<strong random value>
-  FRONTEND_URL=https://your-app.vercel.app
+  spring.security.oauth2.client.registration.google.client-id=...
+  spring.security.oauth2.client.registration.google.client-secret=...
+  app.jwt.secret=<strong random value>
+  app.frontend-url=https://your-app.vercel.app
   ```
 - [ ] Add to Google Cloud Console OAuth Client:
   - **Authorized JavaScript origins:** `https://your-app.vercel.app`
