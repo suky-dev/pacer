@@ -41,6 +41,9 @@ Personal side project — optimizing for clean Kotlin code and real deployment.
 ## Frontend gotchas
 - `useSearchParams()` must be wrapped in `<Suspense>` or build fails
 
+## Merge policy
+- **Never merge to main without local testing first** — run both BE and FE, verify the feature works end-to-end in the browser
+
 ## Current phase
 - Auth: Google OAuth2 + JWT ✅
 - Resume optimization: in progress (B → A → Tracking)
