@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes'
 import { Moon, Sun, Bookmark, FileText, Briefcase, Rocket, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/hooks/use-auth'
+import { useAuth } from '@/components/auth-provider'
 
 const navItems = [
   { href: '/jobs', label: 'Jobs', icon: Briefcase },
