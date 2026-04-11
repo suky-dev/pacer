@@ -58,17 +58,16 @@ export function VariationChip({ variation, isEditing, onEdit, onClose, onChange,
   }
 
   return (
-    <div className="group flex items-start gap-1">
+    <div className="group relative">
       <button
-        className="flex-1 text-left text-sm px-2 py-1 rounded bg-muted hover:bg-muted/80 whitespace-pre-wrap break-words"
+        className="w-full text-left text-sm px-2 py-1 pr-6 rounded bg-muted hover:bg-muted/80 whitespace-pre-wrap break-words"
         onClick={onEdit}
         title={variation.value}
       >
-        <span className="text-xs text-muted-foreground mr-1">[{variation.renderType}]</span>
         {variation.value || <span className="text-muted-foreground italic">empty</span>}
       </button>
       <button
-        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive mt-1"
+        className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
         onClick={onDelete}
       >
         <X className="h-3 w-3" />

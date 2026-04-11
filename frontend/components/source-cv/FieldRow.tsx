@@ -23,6 +23,7 @@ export function FieldRow({ field, onChange, onDelete }: Props) {
 
   function deleteVariation(index: number) {
     const next = field.value.filter((_, i) => i !== index)
+    if (next.length === 0) { onDelete(); return }
     onChange({ ...field, value: next })
   }
 
