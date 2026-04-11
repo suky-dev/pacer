@@ -20,6 +20,7 @@ type Props = {
 export function SourceCvEditor({ cv, isDirty, onChange, onSave }: Props) {
   const [mode, setMode] = useState<'tree' | 'markdown'>('tree')
   const [markdownText, setMarkdownText] = useState('')
+  const [parseError, setParseError] = useState<string | null>(null)
   const onSaveRef = useRef(onSave)
   onSaveRef.current = onSave
   const selfUpdatedRef = useRef(false)
@@ -41,18 +42,29 @@ export function SourceCvEditor({ cv, isDirty, onChange, onSave }: Props) {
 
   function switchToMarkdown() {
     setMarkdownText(treeToMarkdown(cv))
+    setParseError(null)
     setMode('markdown')
   }
 
   function switchToTree() {
-    onChange(markdownToTree(markdownText))
-    setMode('tree')
+    try {
+      onChange(markdownToTree(markdownText))
+      setParseError(null)
+      setMode('tree')
+    } catch (e) {
+      setParseError((e as Error).message)
+    }
   }
 
   function handleMarkdownChange(text: string) {
     setMarkdownText(text)
     selfUpdatedRef.current = true
-    onChange(markdownToTree(text))
+    try {
+      onChange(markdownToTree(text))
+      setParseError(null)
+    } catch (e) {
+      setParseError((e as Error).message)
+    }
   }
 
   function updateSections(sections: Node[]) {
@@ -88,7 +100,12 @@ export function SourceCvEditor({ cv, isDirty, onChange, onSave }: Props) {
       </div>
 
       {mode === 'markdown' ? (
-        <MarkdownEditor value={markdownText} onChange={handleMarkdownChange} />
+        <>
+          <MarkdownEditor value={markdownText} onChange={handleMarkdownChange} />
+          {parseError && (
+            <p className="text-xs text-destructive mt-1">{parseError}</p>
+          )}
+        </>
       ) : (
         <>
           <NodeList
