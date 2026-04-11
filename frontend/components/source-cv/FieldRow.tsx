@@ -68,13 +68,15 @@ export function FieldRow({ field, onChange, onDelete }: Props) {
             onDelete={() => deleteVariation(i)}
           />
         ))}
-        <button
-          className="text-xs text-muted-foreground hover:text-foreground text-left px-2"
-          onClick={addVariation}
-        >
-          <Plus className="h-3 w-3 inline mr-1" />
-          variation
-        </button>
+        {field.type !== 'text' && (
+          <button
+            className="text-xs text-muted-foreground hover:text-foreground text-left px-2"
+            onClick={addVariation}
+          >
+            <Plus className="h-3 w-3 inline mr-1" />
+            variation
+          </button>
+        )}
       </div>
 
       {/* Delete field */}

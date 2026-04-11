@@ -60,7 +60,7 @@ export function VariationChip({ variation, isEditing, onEdit, onClose, onChange,
   return (
     <div className="group flex items-start gap-1">
       <button
-        className="flex-1 text-left text-sm px-2 py-1 rounded bg-muted hover:bg-muted/80 truncate"
+        className="flex-1 text-left text-sm px-2 py-1 rounded bg-muted hover:bg-muted/80 whitespace-pre-wrap break-words"
         onClick={onEdit}
         title={variation.value}
       >

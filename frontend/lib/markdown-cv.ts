@@ -7,11 +7,11 @@ function uid() { return Math.random().toString(36).slice(2, 10) }
 function sectionToLines(section: Section, depth: number): string[] {
   const prefix = '#'.repeat(depth + 1)
   const title = section.title[0]?.value ?? ''
+  if (!title) return []
   const lines: string[] = [`${prefix} ${title}`]
 
   for (const child of section.children) {
     if (child.kind === 'section') {
-      lines.push('')
       lines.push(...sectionToLines(child, depth + 1))
     } else {
       const field = child as Field
@@ -88,13 +88,13 @@ export function markdownToTree(markdown: string): SourceCvData {
       continue
     }
 
-    const indentedBullet = line.match(/^ {2,}- (.+)$/)
+    const indentedBullet = line.match(/^  - (.+)$/)
     if (indentedBullet && lastBulletField) {
       lastBulletField.value.push({ renderType: 'list', value: indentedBullet[1].trim() })
       continue
     }
 
-    const bullet = line.match(/^- (.+)$/)
+    const bullet = line.match(/^[-*] (.+)$/)
     if (bullet) {
       const field: Field = {
         kind: 'field',
