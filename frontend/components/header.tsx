@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
-import { Moon, Sun, Bookmark, FileText, Briefcase, Rocket, LogOut, User } from 'lucide-react'
+import { Moon, Sun, Bookmark, FileText, Briefcase, Rocket, LogOut, User, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/components/auth-provider'
@@ -11,6 +11,7 @@ import { useAuth } from '@/components/auth-provider'
 const navItems = [
   { href: '/jobs', label: 'Jobs', icon: Briefcase },
   { href: '/saved', label: 'Saved', icon: Bookmark },
+  { href: '/source-cv', label: 'Source CV', icon: BookOpen },
   { href: '/resume', label: 'Resume', icon: FileText },
 ]
 
