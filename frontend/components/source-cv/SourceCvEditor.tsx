@@ -22,6 +22,7 @@ export function SourceCvEditor({ cv, isDirty, onChange, onSave }: Props) {
   const [markdownText, setMarkdownText] = useState('')
   const onSaveRef = useRef(onSave)
   onSaveRef.current = onSave
+  const selfUpdatedRef = useRef(false)
 
   // Auto-save: 5 seconds after last change
   useEffect(() => {
@@ -29,6 +30,14 @@ export function SourceCvEditor({ cv, isDirty, onChange, onSave }: Props) {
     const timer = setTimeout(() => onSaveRef.current(cv), 5000)
     return () => clearTimeout(timer)
   }, [cv, isDirty])
+
+  // Re-sync markdownText if cv is updated externally (e.g., version restore)
+  useEffect(() => {
+    if (mode === 'markdown' && !selfUpdatedRef.current) {
+      setMarkdownText(treeToMarkdown(cv))
+    }
+    selfUpdatedRef.current = false
+  }, [cv, mode])
 
   function switchToMarkdown() {
     setMarkdownText(treeToMarkdown(cv))
@@ -42,6 +51,7 @@ export function SourceCvEditor({ cv, isDirty, onChange, onSave }: Props) {
 
   function handleMarkdownChange(text: string) {
     setMarkdownText(text)
+    selfUpdatedRef.current = true
     onChange(markdownToTree(text))
   }
 
