@@ -36,15 +36,18 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setSaving(true)
-    const res = await apiFetch('/api/users/me/cv-template', {
-      method: 'PATCH',
-      body: JSON.stringify({ cvTemplateUrl: urlInput }),
-    })
-    if (res.ok) {
-      const data = await res.json()
-      setUrlInput(data.cvTemplateUrl ?? '')
+    try {
+      const res = await apiFetch('/api/users/me/cv-template', {
+        method: 'PATCH',
+        body: JSON.stringify({ cvTemplateUrl: urlInput }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setUrlInput(data.cvTemplateUrl ?? '')
+      }
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   if (loading || !user) {

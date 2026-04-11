@@ -1,16 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { FileText, Upload, Sparkles, ArrowRight } from 'lucide-react'
 import { Header } from '@/components/header'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { FieldGroup, Field, FieldLabel } from '@/components/ui/field'
 import { Badge } from '@/components/ui/badge'
+import { useAuth } from '@/components/auth-provider'
 
 export default function ResumeOptimizerPage() {
+  const router = useRouter()
+  const { user, loading } = useAuth()
   const [experienceStore, setExperienceStore] = useState('')
   const [jobDescription, setJobDescription] = useState('')
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login')
+    }
+  }, [user, loading, router])
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground text-sm">Loading...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">

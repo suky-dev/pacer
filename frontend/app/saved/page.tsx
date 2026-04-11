@@ -1,9 +1,31 @@
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Bookmark } from 'lucide-react'
 import { Header } from '@/components/header'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { useAuth } from '@/components/auth-provider'
 
 export default function SavedJobsPage() {
+  const router = useRouter()
+  const { user, loading } = useAuth()
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login')
+    }
+  }, [user, loading, router])
+
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground text-sm">Loading...</p>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />

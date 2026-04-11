@@ -19,9 +19,7 @@ export function JobsList() {
   const [selectedWorkTypes, setSelectedWorkTypes] = useState<WorkType[]>([])
   const [selectedSources, setSelectedSources] = useState<JobSource[]>([])
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
-  const [isPanelOpen, setIsPanelOpen] = useState(false)
 
-  // Simulate loading
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000)
     return () => clearTimeout(timer)
@@ -39,36 +37,18 @@ export function JobsList() {
     )
   }
 
-  const handleJobClick = (job: Job) => {
-    setSelectedJob(job)
-    setIsPanelOpen(true)
-  }
-
   const filteredJobs = useMemo(() => {
+    const query = searchQuery.toLowerCase()
     return mockJobs.filter((job) => {
-      // Search query filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase()
+      if (query) {
         const matchesTitle = job.title.toLowerCase().includes(query)
         const matchesCompany = job.company.toLowerCase().includes(query)
         const matchesTags = job.tags.some((tag) => tag.toLowerCase().includes(query))
         const matchesLocation = job.location.toLowerCase().includes(query)
-        
-        if (!matchesTitle && !matchesCompany && !matchesTags && !matchesLocation) {
-          return false
-        }
+        if (!matchesTitle && !matchesCompany && !matchesTags && !matchesLocation) return false
       }
-
-      // Work type filter
-      if (selectedWorkTypes.length > 0 && !selectedWorkTypes.includes(job.workType)) {
-        return false
-      }
-
-      // Source filter
-      if (selectedSources.length > 0 && !selectedSources.includes(job.source)) {
-        return false
-      }
-
+      if (selectedWorkTypes.length > 0 && !selectedWorkTypes.includes(job.workType)) return false
+      if (selectedSources.length > 0 && !selectedSources.includes(job.source)) return false
       return true
     })
   }, [searchQuery, selectedWorkTypes, selectedSources])
@@ -83,6 +63,11 @@ export function JobsList() {
           onWorkTypeToggle={handleWorkTypeToggle}
           selectedSources={selectedSources}
           onSourceToggle={handleSourceToggle}
+          onFiltersClear={() => {
+            setSearchQuery('')
+            setSelectedWorkTypes([])
+            setSelectedSources([])
+          }}
         />
 
         <div className="flex items-center justify-between">
@@ -113,7 +98,7 @@ export function JobsList() {
                 key={job.id}
                 job={job}
                 isSelected={selectedJob?.id === job.id}
-                onClick={() => handleJobClick(job)}
+                onClick={() => setSelectedJob(job)}
               />
             ))}
           </div>
@@ -122,8 +107,8 @@ export function JobsList() {
 
       <JobDetailPanel
         job={selectedJob}
-        open={isPanelOpen}
-        onOpenChange={setIsPanelOpen}
+        open={selectedJob !== null}
+        onOpenChange={(open) => { if (!open) setSelectedJob(null) }}
       />
     </>
   )

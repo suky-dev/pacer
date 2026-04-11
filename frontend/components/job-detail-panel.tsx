@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Job } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { capitalize, getSourceLabel, getWorkTypeBadgeClass } from '@/lib/jobs'
 
 interface JobDetailPanelProps {
   job: Job | null
@@ -26,19 +27,6 @@ function formatDate(dateString: string) {
     month: 'long',
     day: 'numeric',
   })
-}
-
-function getWorkTypeBadgeClass(workType: string) {
-  switch (workType) {
-    case 'remote':
-      return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-    case 'hybrid':
-      return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
-    case 'onsite':
-      return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
-    default:
-      return ''
-  }
 }
 
 export function JobDetailPanel({ job, open, onOpenChange }: JobDetailPanelProps) {
@@ -80,7 +68,7 @@ export function JobDetailPanel({ job, open, onOpenChange }: JobDetailPanelProps)
                   variant="outline"
                   className={cn('font-medium', getWorkTypeBadgeClass(job.workType))}
                 >
-                  {job.workType.charAt(0).toUpperCase() + job.workType.slice(1)}
+                  {capitalize(job.workType)}
                 </Badge>
                 <Badge
                   variant="outline"
@@ -91,7 +79,7 @@ export function JobDetailPanel({ job, open, onOpenChange }: JobDetailPanelProps)
                       : 'border-orange-500/30 text-orange-600 dark:text-orange-400'
                   )}
                 >
-                  {job.source === 'linkedin' ? 'LinkedIn' : 'Arbeitnow'}
+                  {getSourceLabel(job.source)}
                 </Badge>
                 {job.salary && (
                   <Badge variant="secondary" className="font-medium">
@@ -126,7 +114,7 @@ export function JobDetailPanel({ job, open, onOpenChange }: JobDetailPanelProps)
               className="flex-1"
               onClick={() => window.open(job.url, '_blank')}
             >
-              Apply on {job.source === 'linkedin' ? 'LinkedIn' : 'Arbeitnow'}
+              Apply on {getSourceLabel(job.source)}
               <ExternalLink className="ml-2 h-4 w-4" />
             </Button>
             <Button variant="outline" size="icon">

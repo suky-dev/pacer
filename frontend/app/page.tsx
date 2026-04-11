@@ -40,10 +40,9 @@ export default function LandingPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <Header minimal />
+      <Header />
 
       <main className="flex flex-1 flex-col items-center justify-center px-4">
-        {/* Hero */}
         <div className="w-full max-w-2xl space-y-10 text-center">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/60 px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -59,7 +58,6 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Search box */}
           <div className="relative">
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
               <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
@@ -82,7 +80,6 @@ export default function LandingPage() {
               </button>
             </div>
 
-            {/* Suggestions */}
             <div className="mt-3 flex flex-wrap justify-center gap-2">
               {SUGGESTIONS.map((s) => (
                 <button
@@ -96,7 +93,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Stats */}
           <div className="flex items-center justify-center gap-8 border-t border-border pt-8">
             {STATS.map((stat, i) => (
               <div key={i} className="text-center">
@@ -108,7 +104,6 @@ export default function LandingPage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-border py-5 text-center text-xs text-muted-foreground">
         Pacer — built for engineers, by engineers
       </footer>

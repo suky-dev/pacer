@@ -14,6 +14,7 @@ interface SearchFiltersProps {
   onWorkTypeToggle: (type: WorkType) => void
   selectedSources: JobSource[]
   onSourceToggle: (source: JobSource) => void
+  onFiltersClear: () => void
 }
 
 const workTypes: { value: WorkType; label: string }[] = [
@@ -34,14 +35,9 @@ export function SearchFilters({
   onWorkTypeToggle,
   selectedSources,
   onSourceToggle,
+  onFiltersClear,
 }: SearchFiltersProps) {
   const hasFilters = searchQuery || selectedWorkTypes.length > 0 || selectedSources.length > 0
-
-  const clearAll = () => {
-    onSearchChange('')
-    selectedWorkTypes.forEach(onWorkTypeToggle)
-    selectedSources.forEach(onSourceToggle)
-  }
 
   return (
     <div className="space-y-4">
@@ -92,7 +88,7 @@ export function SearchFilters({
           <Button
             variant="ghost"
             size="sm"
-            onClick={clearAll}
+            onClick={onFiltersClear}
             className="ml-auto h-7 text-xs text-muted-foreground"
           >
             <X className="mr-1 h-3 w-3" />

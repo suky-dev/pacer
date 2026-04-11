@@ -94,7 +94,6 @@ export function Header({ minimal = false }: HeaderProps) {
         </div>
       </div>
 
-      {/* Mobile Navigation — only shown on non-minimal pages */}
       {!minimal && (
         <nav className="flex items-center justify-around border-t border-border px-4 py-2 sm:hidden">
           {navItems.map((item) => {

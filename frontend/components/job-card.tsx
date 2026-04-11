@@ -4,6 +4,7 @@ import { MapPin, Calendar, Bookmark } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Job } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { capitalize, getSourceLabel, getWorkTypeBadgeClass } from '@/lib/jobs'
 
 interface JobCardProps {
   job: Job
@@ -15,25 +16,12 @@ function formatDate(dateString: string) {
   const date = new Date(dateString)
   const now = new Date()
   const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
-  
+
   if (diffDays === 0) return 'Today'
   if (diffDays === 1) return 'Yesterday'
   if (diffDays < 7) return `${diffDays}d ago`
   if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`
   return `${Math.floor(diffDays / 30)}mo ago`
-}
-
-function getWorkTypeBadgeClass(workType: string) {
-  switch (workType) {
-    case 'remote':
-      return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-    case 'hybrid':
-      return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
-    case 'onsite':
-      return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
-    default:
-      return ''
-  }
 }
 
 export function JobCard({ job, isSelected, onClick }: JobCardProps) {
@@ -73,7 +61,7 @@ export function JobCard({ job, isSelected, onClick }: JobCardProps) {
           variant="outline"
           className={cn('text-[10px] font-medium', getWorkTypeBadgeClass(job.workType))}
         >
-          {job.workType.charAt(0).toUpperCase() + job.workType.slice(1)}
+          {capitalize(job.workType)}
         </Badge>
         {job.tags.slice(0, 4).map((tag) => (
           <Badge
@@ -99,7 +87,7 @@ export function JobCard({ job, isSelected, onClick }: JobCardProps) {
               : 'border-orange-500/30 text-orange-600 dark:text-orange-400'
           )}
         >
-          {job.source === 'linkedin' ? 'LinkedIn' : 'Arbeitnow'}
+          {getSourceLabel(job.source)}
         </Badge>
         {job.salary && (
           <span className="text-xs font-medium text-foreground">{job.salary}</span>
