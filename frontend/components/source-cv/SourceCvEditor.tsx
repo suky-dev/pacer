@@ -1,9 +1,12 @@
+// frontend/components/source-cv/SourceCvEditor.tsx
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Section, SourceCvData, Node } from '@/lib/source-cv'
+import { treeToMarkdown, markdownToTree } from '@/lib/markdown-cv'
 import { NodeList } from './NodeList'
-import { Plus } from 'lucide-react'
+import { MarkdownEditor } from './MarkdownEditor'
+import { Plus, Code, List } from 'lucide-react'
 
 function uid() { return Math.random().toString(36).slice(2, 10) }
 
@@ -15,6 +18,8 @@ type Props = {
 }
 
 export function SourceCvEditor({ cv, isDirty, onChange, onSave }: Props) {
+  const [mode, setMode] = useState<'tree' | 'markdown'>('tree')
+  const [markdownText, setMarkdownText] = useState('')
   const onSaveRef = useRef(onSave)
   onSaveRef.current = onSave
 
@@ -24,6 +29,21 @@ export function SourceCvEditor({ cv, isDirty, onChange, onSave }: Props) {
     const timer = setTimeout(() => onSaveRef.current(cv), 5000)
     return () => clearTimeout(timer)
   }, [cv, isDirty])
+
+  function switchToMarkdown() {
+    setMarkdownText(treeToMarkdown(cv))
+    setMode('markdown')
+  }
+
+  function switchToTree() {
+    onChange(markdownToTree(markdownText))
+    setMode('tree')
+  }
+
+  function handleMarkdownChange(text: string) {
+    setMarkdownText(text)
+    onChange(markdownToTree(text))
+  }
 
   function updateSections(sections: Node[]) {
     onChange({ sections: sections as Section[] })
@@ -36,18 +56,45 @@ export function SourceCvEditor({ cv, isDirty, onChange, onSave }: Props) {
 
   return (
     <div className="space-y-4">
-      <NodeList
-        nodes={cv.sections}
-        depth={0}
-        onChange={updateSections}
-      />
-      <button
-        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground border border-dashed border-border rounded px-4 py-2 w-full justify-center"
-        onClick={addSection}
-      >
-        <Plus className="h-4 w-4" />
-        Add Section
-      </button>
+      {/* Mode toggle */}
+      <div className="flex justify-end">
+        {mode === 'tree' ? (
+          <button
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded px-2 py-1"
+            onClick={switchToMarkdown}
+          >
+            <Code className="h-3 w-3" />
+            Markdown
+          </button>
+        ) : (
+          <button
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded px-2 py-1"
+            onClick={switchToTree}
+          >
+            <List className="h-3 w-3" />
+            Tree
+          </button>
+        )}
+      </div>
+
+      {mode === 'markdown' ? (
+        <MarkdownEditor value={markdownText} onChange={handleMarkdownChange} />
+      ) : (
+        <>
+          <NodeList
+            nodes={cv.sections}
+            depth={0}
+            onChange={updateSections}
+          />
+          <button
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground border border-dashed border-border rounded px-4 py-2 w-full justify-center"
+            onClick={addSection}
+          >
+            <Plus className="h-4 w-4" />
+            Add Section
+          </button>
+        </>
+      )}
     </div>
   )
 }
